@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { useAuthStore } from './stores/authStore';
+import { useAccountStore } from './stores/accountStore';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -14,7 +15,20 @@ import Login from './pages/Login';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
 function App() {
-  const { user, isLoading } = useAuthStore();
+  const { user, isLoading, initialize } = useAuthStore();
+  const { fetchAccounts } = useAccountStore();
+
+  useEffect(() => {
+    // Initialize auth state
+    initialize();
+  }, [initialize]);
+
+  useEffect(() => {
+    // Fetch accounts when user is authenticated
+    if (user) {
+      fetchAccounts();
+    }
+  }, [user, fetchAccounts]);
 
   if (isLoading) {
     return (
@@ -27,7 +41,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        <Toaster 
+        <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
